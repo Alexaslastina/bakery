@@ -4,9 +4,24 @@ const {FoodModel,validFood} = require("../models/foodModel");
 const router = express.Router();
 
 /* GET home page. */
-router.get('/', (req, res) => {
-  res.json({msg:"food work"})
+router.get('/',  async(req, res) => {
+  let perPage = (req.query.perPage)? Number(req.query.perPage) : 10;
+  let page = req.query.page;
+  let sortQ = req.query.sort;
+  let ifReverse = (req.query.reverse == "yes") ? -1 : 1 ;
+  try {
+    let data = await FoodModel.find({})
+    .sort({[sortQ]:ifReverse})
+    .limit(perPage)
+    .skip(page * perPage)
+    res.json(data);
+  }
+  catch (err) {
+    console.log(err);
+    res.status(400).json(err);
+  }
 });
+
 
 
 router.post("/", authToken , async(req,res) => {
